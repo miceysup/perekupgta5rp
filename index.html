@@ -1,33 +1,204 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>GTA RP Калькулятор</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>GTA RP • Night Calc</title>
+<style>
+:root {
+  --bg: #0b1020; --card: #131a33; --accent: #7c83ff;
+  --accent-soft: rgba(124,131,255,0.2); --text: #e8ebff;
+  --danger: #ff5c5c; --rent-color: #5cffa2; --extra-color: #d18fff;
+}
+
+*{box-sizing:border-box;}
+body{margin:0; font-family:"Segoe UI",Arial,sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; background:var(--bg); color:var(--text); transition:0.3s;}
+.card{width:360px; background:var(--card); border-radius:18px; padding:20px; box-shadow:0 0 25px var(--accent-soft);}
+h2{text-align:center; color:var(--accent);}
+h3{margin:16px 0 6px; font-size:15px; color:#cfd3ff;}
+input{width:100%; height:40px; margin-top:6px; padding:0 12px; border-radius:10px; border:1px solid #2a3470; background:#0f1530; color:var(--text);}
+input:focus{border-color:var(--accent); box-shadow:0 0 8px var(--accent-soft);}
+button{width:100%; height:40px; margin-top:8px; border-radius:10px; border:none; font-weight:600; cursor:pointer; transition:0.2s;}
+button:hover{filter:brightness(1.1);}
+button.secondary{background:#1a2250;color:var(--text);}
+button.danger{background:var(--danger);color:#fff;}
+.stats p{margin:4px 0;font-size:14px;}
+.history{max-height:120px; overflow-y:auto; margin-top:6px; background:#0f1530; border-radius:10px; padding:6px; font-size:13px;}
+.history div{padding:4px 6px; border-bottom:1px solid #1e2755;}
+.history div:last-child{border-bottom:none;}
+.select-theme{margin-top:8px; height:35px; border-radius:8px; border:none; padding:0 8px; font-size:14px; background:#1a2250; color:var(--text);}
+
+/* Свитч */
+.switch-container{display:flex; align-items:center; margin-top:10px;}
+.switch{position: relative; display: inline-block; width:60px; height:28px; margin-right:10px;}
+.switch input{opacity:0; width:0; height:0;}
+.slider{position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:0.4s; border-radius:28px;}
+.slider:before{position:absolute; content:""; height:22px; width:22px; left:3px; bottom:3px; background-color:#fff; transition:0.4s; border-radius:50%;}
+input:checked + .slider{background-color:var(--accent);}
+input:checked + .slider:before{transform:translateX(32px);}
+.switch-label{font-size:14px; user-select:none;}
+</style>
 </head>
 <body>
-
 <div class="card">
-    <h1>GTA RP Калькулятор</h1>
+<h2>🌙 GTA RP Calc</h2>
 
-    <h2>🚗 Аренда авто</h2>
+<h3>Темы</h3>
+<select class="select-theme" onchange="changeTheme(this.value)">
+<option value="moon">Лунная</option>
+<option value="day">Дневная</option>
+<option value="gta">GTA-стиль</option>
+<option value="neon">Нежный неон</option>
+</select>
 
-    <input type="number" id="priceHour" placeholder="Цена за час">
-    <input type="number" id="hours" placeholder="Кол-во часов">
-    <input type="number" id="expenses" placeholder="Расходы">
+<h3>🚗 Аренда</h3>
+<input id="price" type="number" placeholder="Цена за час">
+<input id="hours" type="number" placeholder="Часы">
+<input id="expenses" type="number" placeholder="Расходы">
+<button class="secondary" onclick="setDefault()">5500 / 2 часа</button>
+<button onclick="addRent()">Добавить аренду</button>
 
-    <button onclick="setDefault()">💰 5500 / 2 часа</button>
-    <button onclick="addRent()">Добавить аренду</button>
+<h3>💸 Доп доход</h3>
+<input id="extra" type="number" placeholder="Сумма">
+<input id="extraDesc" type="text" placeholder="Описание (необязательно)">
+<button onclick="addExtra()">Добавить доход</button>
 
-    <p id="rentResult">Прибыль: 0$</p>
+<h3>📊 Итоги</h3>
+<div class="switch-container">
+  <label class="switch">
+    <input type="checkbox" id="onlyRent" onchange="update()">
+    <span class="slider"></span>
+  </label>
+  <span class="switch-label" id="switchLabel">Общие</span>
+</div>
+<div class="stats">
+<p id="day">За день: 0$</p>
+<p id="week">За неделю: 0$</p>
+<p id="month">За месяц: 0$</p>
+</div>
 
-    <hr>
+<button class="secondary" onclick="newDay()">Новый день</button>
+<button class="danger" onclick="resetAll()">Сбросить всё</button>
 
-    <h2>💸 Доп. заработок</h2>
+<h3>🧾 История</h3>
+<div class="history" id="history"></div>
+</div>
 
-    <input type="number" id="extraMoney" placeholder="Сумма">
-    <button onclick="addExtra()">Добавить доход</button>
+<audio id="soundRent"><source src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" type="audio/ogg"></audio>
+<audio id="soundExtra"><source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" type="audio/ogg"></audio>
 
-    <hr>
+<script>
+let day = Number(localStorage.getItem("day"))||0;
+let week = Number(localStorage.getItem("week"))||0;
+let month = Number(localStorage.getItem("month"))||0;
+let rentTotalDay = Number(localStorage.getItem("rentTotalDay"))||0;
+let rentTotalWeek = Number(localStorage.getItem("rentTotalWeek"))||0;
+let rentTotalMonth = Number(localStorage.getItem("rentTotalMonth"))||0;
+let history = JSON.parse(localStorage.getItem("history"))||[];
+let currentTheme = localStorage.getItem("theme")||"moon";
 
-    <h2>
+document.querySelector(".select-theme").value=currentTheme;
+changeTheme(currentTheme);
+
+update();
+renderHistory();
+
+function setDefault(){ price.value=5500; hours.value=2; }
+
+function addRent(){
+    let profit=(Number(price.value)*Number(hours.value))-Number(expenses.value);
+    if(isNaN(profit)) return;
+    rentTotalDay+=profit; rentTotalWeek+=profit; rentTotalMonth+=profit;
+    playSound('rent');
+    addProfit(profit,"Аренда");
+}
+
+function addExtra(){
+    let amount=Number(extra.value);
+    if(amount<=0) return;
+    let desc=extraDesc.value.trim();
+    let type="Доп доход"; if(desc) type+=" ("+desc+")";
+    playSound('extra');
+    addProfit(amount,type);
+    extra.value=""; extraDesc.value="";
+}
+
+function addProfit(amount,type){
+    day+=amount; week+=amount; month+=amount;
+    history.unshift(`[${type}] +${amount}$`);
+    history=history.slice(0,50);
+    save(); update(); renderHistory();
+}
+
+function update(){
+    let onlyRent=document.getElementById("onlyRent").checked;
+    let switchLabel=document.getElementById("switchLabel");
+    if(onlyRent){
+        dayEl().innerText="За день: "+rentTotalDay+"$";
+        weekEl().innerText="За неделю: "+rentTotalWeek+"$";
+        monthEl().innerText="За месяц: "+rentTotalMonth+"$";
+        switchLabel.innerText="Только аренда";
+    } else {
+        dayEl().innerText="За день: "+day+"$";
+        weekEl().innerText="За неделю: "+week+"$";
+        monthEl().innerText="За месяц: "+month+"$";
+        switchLabel.innerText="Общие";
+    }
+}
+
+function renderHistory(){
+    let h=document.getElementById("history"); h.innerHTML="";
+    history.forEach(item=>{
+        let div=document.createElement("div");
+        div.innerText=item;
+        if(item.includes("[Аренда]")) div.style.color="#5cffa2";
+        else if(item.includes("[Доп доход]")) div.style.color="#d18fff";
+        h.appendChild(div);
+    });
+}
+
+function save(){
+    localStorage.setItem("day",day);
+    localStorage.setItem("week",week);
+    localStorage.setItem("month",month);
+    localStorage.setItem("rentTotalDay",rentTotalDay);
+    localStorage.setItem("rentTotalWeek",rentTotalWeek);
+    localStorage.setItem("rentTotalMonth",rentTotalMonth);
+    localStorage.setItem("history",JSON.stringify(history));
+    localStorage.setItem("theme",currentTheme);
+}
+
+function newDay(){ day=0; rentTotalDay=0; save(); update(); }
+function resetAll(){ localStorage.clear(); location.reload(); }
+function dayEl(){ return document.getElementById("day"); }
+function weekEl(){ return document.getElementById("week"); }
+function monthEl(){ return document.getElementById("month"); }
+
+function changeTheme(t){
+    currentTheme=t;
+    if(t=="moon"){
+        document.body.style.background="radial-gradient(circle at top,#1a2250,#0b1020)";
+        document.querySelector(".card").style.background="#131a33";
+        document.documentElement.style.setProperty('--accent','#7c83ff');
+    } else if(t=="day"){
+        document.body.style.background="radial-gradient(circle at top,#cce6ff,#a3d5ff)";
+        document.querySelector(".card").style.background="#ffffff";
+        document.documentElement.style.setProperty('--accent','#0066cc');
+    } else if(t=="gta"){
+        document.body.style.background="radial-gradient(circle at top,#1e0000,#400000)";
+        document.querySelector(".card").style.background="#330000";
+        document.documentElement.style.setProperty('--accent','#ffdd00');
+    } else if(t=="neon"){
+        document.body.style.background="radial-gradient(circle at top,#0b001f,#200050)";
+        document.querySelector(".card").style.background="#1a0033";
+        document.documentElement.style.setProperty('--accent','#ff6fff');
+    }
+    save();
+}
+
+function playSound(type){
+    if(type==='rent') document.getElementById("soundRent").play();
+    if(type==='extra') document.getElementById("soundExtra").play();
+}
+</script>
+</body>
+</html>
