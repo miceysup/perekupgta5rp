@@ -11,35 +11,27 @@
 }
 *{box-sizing:border-box;}
 body{margin:0;font-family:"Segoe UI",Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background:var(--bg);color:var(--text);overflow:hidden;}
-.card{width:400px;background:var(--card);border-radius:20px;padding:20px;box-shadow:0 0 15px var(--accent-soft);position:relative;z-index:1;}
+.card{width:400px;background:var(--card);border-radius:20px;padding:20px;box-shadow:0 0 15px var(--accent-soft);position:relative;z-index:1;overflow:hidden;transition:0.5s;}
 h2{text-align:center;color:var(--accent);}
 h3{margin:16px 0 6px;font-size:15px;color:#cfd3ff;}
 input{width:100%;height:40px;margin-top:6px;padding:0 12px;border-radius:10px;border:1px solid #2a3470;background:#0f1530;color:var(--text);transition:0.3s;}
 input:focus{border-color:var(--accent);box-shadow:0 0 6px var(--accent-soft);}
-
 button{height:40px;margin-top:8px;border-radius:10px;border:none;font-weight:600;cursor:pointer;transition:0.3s;padding:0 12px;position:relative;overflow:hidden;background:#1a2250;color:var(--text);box-shadow:0 0 4px rgba(124,131,255,0.2);}
 button:hover{filter:brightness(1.05);}
 button.danger{background:var(--danger);color:#fff;box-shadow:0 0 4px rgba(255,92,92,0.2);}
-
-.stats p{margin:4px 0;font-size:14px;}
+.stats p{margin:4px 0;font-size:14px;padding:6px;border-radius:8px;}
 .history{max-height:120px;overflow-y:auto;margin-top:6px;background:#0f1530;border-radius:10px;padding:6px;font-size:13px;position:relative;}
 .history div{padding:4px 6px;border-bottom:1px solid #1e2755;opacity:0;animation:slidein 0.4s forwards;}
 .history div:last-child{border-bottom:none;}
 @keyframes slidein{from{transform:translateX(-20px);opacity:0;}to{transform:translateX(0);opacity:1;}}
-
 .select-theme{margin-top:8px;height:35px;border-radius:8px;border:none;padding:0 8px;font-size:14px;background:#1a2250;color:var(--text);}
-
 .segment {display:flex;margin:10px 0;gap:6px;}
 .segment button {flex:1;background:#1a2250;color:var(--text);font-size:14px;position:relative;overflow:hidden;transition:0.3s;box-shadow:0 0 4px rgba(124,131,255,0.2);}
 .segment button.active{background:var(--accent);transform:scale(1.05);box-shadow:0 0 10px var(--accent);}
-
 .categoryCard{padding:10px;border-radius:12px;margin-top:10px;border:2px solid rgba(255,255,255,0.1);position:relative;overflow:hidden;}
 .categoryCard > *{position:relative;z-index:1;}
-
 body::after{content:"";position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,0.03),transparent 40%),radial-gradient(circle at 80% 70%,rgba(255,255,255,0.03),transparent 40%);animation:stars 10s linear infinite;pointer-events:none;z-index:0;}
 @keyframes stars{0%{background-position:0 0,100% 100%;}100%{background-position:100% 100%,0 0;}}
-
-/* Свитч «Общ.» с надписью внутри */
 .toggle {position:relative;width:70px;height:28px;display:inline-block;}
 .toggle input{opacity:0;width:0;height:0;}
 .slider {position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#1a2250;transition:0.4s;border-radius:34px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;box-shadow:0 0 4px rgba(124,131,255,0.2);}
@@ -49,86 +41,101 @@ input:checked + .slider:before{transform:translateX(42px);}
 </style>
 </head>
 <body>
-<div class="card">
+<div class="card" id="card">
 <h2>🌙 GTA RP Neon Calc</h2>
 
-<h3>Темы</h3>
-<select class="select-theme" onchange="changeTheme(this.value)">
-<option value="moon">Лунная</option>
-<option value="galaxy">Галактика</option>
-<option value="pastel">Неоновая пастель</option>
-<option value="sunset">Закат на воде</option>
-</select>
-
-<h3>Категория</h3>
-<div class="segment">
-  <button onclick="setCategory('extra')" id="btnExtra">Доходы</button>
-  <button onclick="setCategory('expense')" id="btnExpense">Траты</button>
-  <button onclick="setCategory('contract')" id="btnContract">Контракт</button>
-  <button onclick="setCategory('rent')" id="btnRent">Аренда</button>
+<div style="text-align:center; margin:10px 0;">
+  <button onclick="toggleStats()" id="toggleStatsBtn">📊 Статистика</button>
 </div>
 
-<div class="categoryCard" id="categoryForms">
-  <div id="formExtra">
-    <input id="extra" type="number" placeholder="Сумма">
-    <input id="extraDesc" type="text" placeholder="Описание (необязательно)">
-    <button onclick="addExtra()">Добавить доход</button>
-  </div>
-  <div id="formExpense" style="display:none;">
-    <input id="expense" type="number" placeholder="Сумма">
-    <input id="expenseDesc" type="text" placeholder="Описание">
-    <button onclick="addExpense()">Добавить трату</button>
-  </div>
-  <div id="formContract" style="display:none;">
-    <input id="contract" type="number" placeholder="Сумма контракта">
-    <button onclick="addContract()">Добавить контракт</button>
-  </div>
-  <div id="formRent" style="display:none;">
-    <input id="price" type="number" placeholder="Цена за час">
-    <input id="hours" type="number" placeholder="Часы">
-    <button onclick="setDefault()">5500 / 2 часа</button>
-    <button onclick="addRent()">Добавить аренду</button>
-  </div>
-</div>
+<div id="mainForm">
+  <h3>Темы</h3>
+  <select class="select-theme" onchange="changeTheme(this.value)">
+    <option value="moon">Лунная</option>
+    <option value="galaxy">Галактика</option>
+    <option value="pastel">Неоновая пастель</option>
+    <option value="sunset">Закат на воде</option>
+  </select>
 
-<h3>📊 Итоги</h3>
-<label>
-  <label class="toggle">
-    <input type="checkbox" id="showTotal" onchange="update()">
-    <span class="slider">Общ.</span>
+  <h3>Категория</h3>
+  <div class="segment">
+    <button onclick="setCategory('extra')" id="btnExtra">Доходы</button>
+    <button onclick="setCategory('expense')" id="btnExpense">Траты</button>
+    <button onclick="setCategory('contract')" id="btnContract">Контракт</button>
+    <button onclick="setCategory('rent')" id="btnRent">Аренда</button>
+  </div>
+
+  <div class="categoryCard" id="categoryForms">
+    <div id="formExtra">
+      <input id="extra" type="number" placeholder="Сумма">
+      <input id="extraDesc" type="text" placeholder="Описание (необязательно)">
+      <button onclick="addExtra()">Добавить доход</button>
+    </div>
+    <div id="formExpense" style="display:none;">
+      <input id="expense" type="number" placeholder="Сумма">
+      <input id="expenseDesc" type="text" placeholder="Описание">
+      <button onclick="addExpense()">Добавить трату</button>
+    </div>
+    <div id="formContract" style="display:none;">
+      <input id="contract" type="number" placeholder="Сумма контракта">
+      <button onclick="addContract()">Добавить контракт</button>
+    </div>
+    <div id="formRent" style="display:none;">
+      <input id="price" type="number" placeholder="Цена за час">
+      <input id="hours" type="number" placeholder="Часы">
+      <button onclick="setDefault()">5500 / 2 часа</button>
+      <button onclick="addRent()">Добавить аренду</button>
+    </div>
+  </div>
+
+  <h3>📊 Итоги</h3>
+  <label>
+    <label class="toggle">
+      <input type="checkbox" id="showTotal" onchange="update()">
+      <span class="slider">Общ.</span>
+    </label>
   </label>
-</label>
-<div class="stats">
-<p id="day">За день: 0$</p>
-<p id="week">За неделю: 0$</p>
-<p id="month">За месяц: 0$</p>
+  <div class="stats">
+    <p id="day">За день: 0$</p>
+    <p id="week">За неделю: 0$</p>
+    <p id="month">За месяц: 0$</p>
+  </div>
+
+  <button onclick="newDay()">Новый день</button>
+  <button class="danger" onclick="resetAll()">Сбросить всё</button>
+
+  <h3>🧾 История</h3>
+  <div class="history" id="history"></div>
 </div>
 
-<button onclick="newDay()">Новый день</button>
-<button class="danger" onclick="resetAll()">Сбросить всё</button>
-
-<h3>🧾 История</h3>
-<div class="history" id="history"></div>
+<div id="statsPage" style="display:none; padding:10px; max-height:400px; overflow-y:auto; transition:0.5s;">
+  <button onclick="toggleStats()" style="margin-bottom:10px;">⬅ Назад</button>
+  <h3>История по дням</h3>
+  <input type="date" id="searchDate" onchange="renderDailyStats()" style="width:100%;margin-bottom:6px;">
+  <div id="dailyStats"></div>
 </div>
 
 <script>
-// ==== Переменные ====
-let day=0, week=0, month=0;
 let extraDay=0, extraWeek=0, extraMonth=0;
 let expenseDay=0, expenseWeek=0, expenseMonth=0;
 let contractDay=0, contractWeek=0, contractMonth=0;
 let rentDay=0, rentWeek=0, rentMonth=0;
 let historyArr=JSON.parse(localStorage.getItem("history"))||[];
 let currentCategory='extra';
-let showTotal=localStorage.getItem("showTotal")==='true';
 
-// ==== Инициализация ====
-document.getElementById("showTotal").checked=showTotal;
+document.getElementById("showTotal").checked=localStorage.getItem("showTotal")==='true';
 setCategory('extra');
 update();
 renderHistory();
 
-// ==== Функции ====
+function getToday(){
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 function setCategory(cat){
   currentCategory=cat;
   document.querySelectorAll('#categoryForms > div').forEach(d=>d.style.display='none');
@@ -140,10 +147,10 @@ function setCategory(cat){
 function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 function setDefault(){price.value=5500; hours.value=2;}
 
-function addExtra(){let val=Number(extra.value); if(val<=0) return; let desc=extraDesc.value.trim(); extraDay+=val; extraWeek+=val; extraMonth+=val; historyArr.unshift(`[Доходы] +${val}$ ${desc}`); save(); update(); renderHistory(); extra.value=''; extraDesc.value='';}
-function addExpense(){let val=Number(expense.value); if(val<=0) return; let desc=expenseDesc.value.trim(); expenseDay+=val; expenseWeek+=val; expenseMonth+=val; historyArr.unshift(`[Траты] -${val}$ ${desc}`); save(); update(); renderHistory(); expense.value=''; expenseDesc.value='';}
-function addContract(){let val=Number(contract.value); if(val<=0) return; contractDay+=val; contractWeek+=val; contractMonth+=val; historyArr.unshift(`[Контракт] +${val}$`); save(); update(); renderHistory(); contract.value='';}
-function addRent(){let val=Number(price.value)*Number(hours.value); if(isNaN(val)) return; rentDay+=val; rentWeek+=val; rentMonth+=val; historyArr.unshift(`[Аренда] +${val}$`); save(); update(); renderHistory(); price.value=''; hours.value='';}
+function addExtra(){let val=Number(extra.value); if(val<=0) return; let desc=extraDesc.value.trim(); let entry={date:getToday(),text:`[Доходы] +${val}$ ${desc}`, sum:val}; extraDay+=val; extraWeek+=val; extraMonth+=val; historyArr.unshift(entry); save(); update(); renderHistory(); extra.value=''; extraDesc.value='';}
+function addExpense(){let val=Number(expense.value); if(val<=0) return; let desc=expenseDesc.value.trim(); let entry={date:getToday(),text:`[Траты] -${val}$ ${desc}`, sum:-val}; expenseDay+=val; expenseWeek+=val; expenseMonth+=val; historyArr.unshift(entry); save(); update(); renderHistory(); expense.value=''; expenseDesc.value='';}
+function addContract(){let val=Number(contract.value); if(val<=0) return; let entry={date:getToday(),text:`[Контракт] +${val}$`, sum:val}; contractDay+=val; contractWeek+=val; contractMonth+=val; historyArr.unshift(entry); save(); update(); renderHistory(); contract.value='';}
+function addRent(){let val=Number(price.value)*Number(hours.value); if(isNaN(val)) return; let entry={date:getToday(),text:`[Аренда] +${val}$`, sum:val}; rentDay+=val; rentWeek+=val; rentMonth+=val; historyArr.unshift(entry); save(); update(); renderHistory(); price.value=''; hours.value='';}
 
 function update(){
   let d=0,w=0,m=0;
@@ -157,18 +164,118 @@ function update(){
     else if(currentCategory=='contract'){d=contractDay; w=contractWeek; m=contractMonth;}
     else if(currentCategory=='rent'){d=rentDay; w=rentWeek; m=rentMonth;}
   }
-  document.getElementById('day').innerText='За день: '+d+'$';
-  document.getElementById('week').innerText='За неделю: '+w+'$';
-  document.getElementById('month').innerText='За месяц: '+m+'$';
+  document.getElementById('day').innerHTML='За день: <b style="color:#d18fff">'+d+'$</b>';
+  document.getElementById('week').innerHTML='За неделю: <b style="color:#7c83ff">'+w+'$</b>';
+  document.getElementById('month').innerHTML='За месяц: <b style="color:#ffd17c">'+m+'$</b>';
   localStorage.setItem("showTotal",document.getElementById("showTotal").checked);
 }
 
-function renderHistory(){let h=document.getElementById('history');h.innerHTML='';historyArr.forEach(item=>{let div=document.createElement('div');div.innerText=item;if(item.includes('[Аренда]'))div.style.color='#5cffa2';else if(item.includes('[Контракт]'))div.style.color='#ffd17c';else if(item.includes('[Доходы]'))div.style.color='#d18fff';else if(item.includes('[Траты]'))div.style.color='#ff5c80';h.appendChild(div);});}
-function save(){localStorage.setItem('history',JSON.stringify(historyArr));}
+function renderHistory(){
+  const h=document.getElementById('history');
+  h.innerHTML='';
+  historyArr.forEach(entry=>{
+    const div=document.createElement('div');
+    div.innerText=entry.text;
+    if(entry.text.includes("[Аренда]")) div.style.color="#5cffa2";
+    else if(entry.text.includes("[Контракт]")) div.style.color="#ffd17c";
+    else if(entry.text.includes("[Доходы]")) div.style.color="#d18fff";
+    else if(entry.text.includes("[Траты]")) div.style.color="#ff5c80";
+    h.appendChild(div);
+  });
+}
 
+function toggleStats(){
+  const form=document.getElementById("mainForm");
+  const stats=document.getElementById("statsPage");
+  const btn=document.getElementById("toggleStatsBtn");
+
+  if(form.style.display!=="none"){
+    stats.style.display="block";
+    stats.style.transform="translateX(400px)";
+    form.style.transition="transform 0.5s ease-in-out";
+    stats.style.transition="transform 0.5s ease-in-out";
+    requestAnimationFrame(()=>{
+      form.style.transform="translateX(-400px)";
+      stats.style.transform="translateX(0)";
+    });
+    setTimeout(()=>{
+      form.style.display="none";
+      form.style.transform="translateX(0)";
+      btn.style.display="none";
+    }, 500);
+    renderDailyStats();
+  } else {
+    form.style.display="block";
+    form.style.transform="translateX(-400px)";
+    stats.style.transition="transform 0.5s ease-in-out";
+    form.style.transition="transform 0.5s ease-in-out";
+    requestAnimationFrame(()=>{
+      stats.style.transform="translateX(400px)";
+      form.style.transform="translateX(0)";
+    });
+    setTimeout(()=>{
+      stats.style.display="none";
+      stats.style.transform="translateX(0)";
+      btn.style.display="inline-block";
+    },500);
+  }
+}
+
+function renderDailyStats(){
+  const container=document.getElementById("dailyStats");
+  container.innerHTML="";
+  const searchDate=document.getElementById("searchDate").value;
+  const grouped={};
+  historyArr.forEach(entry=>{
+    if(searchDate && entry.date!==searchDate) return;
+    if(!grouped[entry.date]) grouped[entry.date]=[];
+    grouped[entry.date].push(entry);
+  });
+
+  Object.keys(grouped).sort((a,b)=>new Date(b)-new Date(a)).forEach(date=>{
+    const dayDiv=document.createElement("div");
+    dayDiv.style.marginBottom="10px";
+    dayDiv.style.padding="6px";
+    dayDiv.style.borderRadius="10px";
+    dayDiv.style.background="rgba(124,131,255,0.05)";
+
+    let totalSum=0;
+    let categorySum={extra:0, expense:0, contract:0, rent:0};
+    grouped[date].forEach(e=>{
+      totalSum+=e.sum;
+      if(e.text.includes("[Доходы]")) categorySum.extra+=e.sum;
+      else if(e.text.includes("[Траты]")) categorySum.expense+=e.sum;
+      else if(e.text.includes("[Контракт]")) categorySum.contract+=e.sum;
+      else if(e.text.includes("[Аренда]")) categorySum.rent+=e.sum;
+    });
+
+    const parts=date.split("-");
+    const displayDate=`${parts[2]}.${parts[1]}.${parts[0]}`;
+    dayDiv.innerHTML=`<b>${displayDate}</b> <span style="float:right;">Итого: ${totalSum}$</span>`;
+
+    if(categorySum.extra) dayDiv.innerHTML += `<p style="color:#d18fff;">Доходы: ${categorySum.extra}$</p>`;
+    if(categorySum.expense) dayDiv.innerHTML += `<p style="color:#ff5c80;">Траты: ${categorySum.expense}$</p>`;
+    if(categorySum.contract) dayDiv.innerHTML += `<p style="color:#ffd17c;">Контракт: ${categorySum.contract}$</p>`;
+    if(categorySum.rent) dayDiv.innerHTML += `<p style="color:#5cffa2;">Аренда: ${categorySum.rent}$</p>`;
+
+    grouped[date].forEach(entry=>{
+      const p=document.createElement("p");
+      p.style.margin="2px 0";
+      if(entry.text.includes("[Аренда]")) p.style.color="#5cffa2";
+      else if(entry.text.includes("[Контракт]")) p.style.color="#ffd17c";
+      else if(entry.text.includes("[Доходы]")) p.style.color="#d18fff";
+      else if(entry.text.includes("[Траты]")) p.style.color="#ff5c80";
+      p.innerText=entry.text;
+      dayDiv.appendChild(p);
+    });
+
+    container.appendChild(dayDiv);
+  });
+}
+
+function save(){localStorage.setItem('history',JSON.stringify(historyArr));}
 function newDay(){extraDay=0; expenseDay=0; contractDay=0; rentDay=0; update();}
 function resetAll(){localStorage.clear(); location.reload();}
-
 function changeTheme(t){
   if(t=='moon'){document.body.style.background='radial-gradient(circle at top,#1a2250,#0b1020)'; document.querySelector('.card').style.background='#131a33'; document.documentElement.style.setProperty('--accent','#7c83ff');}
   else if(t=='galaxy'){document.body.style.background='radial-gradient(circle at top,#200040,#500080)'; document.querySelector('.card').style.background='#2a0033'; document.documentElement.style.setProperty('--accent','#ff6fff');}
